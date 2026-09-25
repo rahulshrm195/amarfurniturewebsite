@@ -28,6 +28,7 @@ const CONFIG = {
   projectsCollection: 'website_projects',
   reviewsCollection: 'website_reviews',
   leadsCollection: 'website_leads',
+  settingsCollection: 'website_settings',
   firebase: {
     apiKey: '',                       // TODO: paste from Firebase console → Project settings → Your apps
     authDomain: 'amar-furniture-e4782.firebaseapp.com',
@@ -324,7 +325,7 @@ function latheScene(canvas, opts={}){
 /* =====================================================================
    DATA
    ===================================================================== */
-const state = { products: [], projects: [], reviews: [], mode: 'loading', cat: 'all', q: '', sort: 'featured', projSeg: 'all', user: null, admin: { products: [], projects: [], reviews: [], leads: [] }, tab: 'leads', editing: null, demo: false };
+const state = { siteImages: {}, products: [], projects: [], reviews: [], mode: 'loading', cat: 'all', q: '', sort: 'featured', projSeg: 'all', user: null, admin: { products: [], projects: [], reviews: [], leads: [] }, tab: 'leads', editing: null, demo: false };
 let fb = null; // { db, auth, storage }
 
 function loadScript(src){ return new Promise((res,rej)=>{ const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=()=>rej(new Error('Failed to load '+src)); document.head.appendChild(s); }); }
@@ -338,7 +339,7 @@ async function initFirebase(){
 }
 async function loadData(){
   try{ fb = await initFirebase(); }catch(e){ console.warn(e); fb=null; }
-  if(!fb){ state.products = SAMPLE.map(p=>({...p, visible:true, _sample:true})); state.projects = SAMPLE_PROJECTS.map(p=>({...p, visible:true, _sample:true})); state.reviews = SAMPLE_REVIEWS.map(p=>({...p, visible:true, _sample:true})); state.mode='sample'; return; }
+  if(!fb){ state.products = SAMPLE.map(p=>({...p, visible:true, _sample:true})); state.projects = SAMPLE_PROJECTS.map(p=>({...p, visible:true, _sample:true})); state.reviews = SAMPLE_REVIEWS.map(p=>({...p, visible:true, _sample:true})); state.siteImages={}; state.mode='sample'; return; }
   try{
     const [a,b,c] = await Promise.all([
       fb.db.collection(CONFIG.collection).where('visible','==',true).get(),
@@ -348,6 +349,7 @@ async function loadData(){
     state.products = a.docs.map(d=>({id:d.id, ...d.data()}));
     state.projects = b.docs.map(d=>({id:d.id, ...d.data()}));
     state.reviews = c.docs.map(d=>({id:d.id, ...d.data()}));
+    try{ const si=await fb.db.collection(CONFIG.settingsCollection).doc('images').get(); state.siteImages=si.exists?si.data():{}; }catch(e){ state.siteImages={}; }
     state.mode='live';
   }catch(e){ console.warn(e); state.products=[]; state.projects=[]; state.reviews=[]; state.mode='error'; }
 }
@@ -513,6 +515,56 @@ function renderTrust(){
     el.innerHTML=`<div class="brands-head"><span class="eyebrow">Materials &amp; hardware</span><p>Brands we fit in kitchens and wardrobes${!real?' <span class="badge sample">Example list</span>':''}</p></div><ul class="brand-list">${list.map(b=>`<li>${esc(b)}</li>`).join('')}</ul>`;
   });
 }
+
+/* =====================================================================
+   SITE PHOTOS — named slots filled from the Staff page (website_settings/images)
+   ===================================================================== */
+const SLOTS = [
+  { group:'Home slider (full width)', size:'1920 × 1080, landscape', items:[
+    ['hero-1','Slide 1: Wooden Furniture','A finished teak mandir, sofa or dining set in a customer’s home'],
+    ['hero-2','Slide 2: Modular Kitchen & Home Interior','A completed kitchen or wardrobe wall, shot straight on'],
+    ['hero-3','Slide 3: Lathe Works','Turned pillars or a baluster railing on site, or the lathe in action'] ]},
+  { group:'Explore tiles (home)', size:'1000 × 1250, portrait', items:[
+    ['cat-sofa','Wooden Sofas',''],['cat-dining','Dining Sets',''],['cat-mandir','Home Mandirs',''],['cat-zula','Zulas',''],
+    ['cat-kitchen','Modular Kitchens',''],['cat-wardrobe','Wardrobes',''],['cat-pillar','Wooden Pillars',''],['cat-baluster','Balusters & Railings',''] ]},
+  { group:'Department cards (home)', size:'1500 × 1000, landscape', items:[
+    ['dept-wooden','Wooden Furniture card',''],['dept-modular','Modular Kitchen & Home Interior card',''],['dept-lathe','Lathe Works card',''] ]},
+  { group:'Department page main photo', size:'1200 × 1500, portrait (Lathe: 1500 × 1200 landscape)', items:[
+    ['seg-wooden','Wooden Furniture page',''],['seg-modular','Modular Kitchen & Home Interior page',''],['seg-lathe','Lathe Works page','Replaces the lathe animation'] ]},
+  { group:'Inside our workshop (home)', size:'1000 × 1250, portrait', items:[
+    ['work-1','Turning on the lathe',''],['work-2','Joinery by hand',''],['work-3','Polishing & finishing',''],['work-4','Installation on site',''] ]},
+  { group:'About Us', size:'1600 × 1000, landscape', items:[ ['about-1','Family / team in the workshop','You and your father with the team'] ]}
+];
+const SLOT_INFO = Object.fromEntries(SLOTS.flatMap(g=>g.items.map(([id,label,hint])=>[id,{label,hint,size:g.size,group:g.group}])));
+function applySlots(){
+  const imgs=state.siteImages||{};
+  $$('[data-slot]').forEach(el=>{
+    const id=el.dataset.slot, url=imgs[id];
+    let img=$(':scope > img.slot-img',el), tag=$(':scope > .slot-tag',el);
+    if(url){
+      if(!img){ img=document.createElement('img'); img.className='slot-img'; img.alt=(SLOT_INFO[id]||{}).label||''; img.decoding='async'; if(!id.startsWith('hero-1')) img.loading='lazy'; el.prepend(img); }
+      if(img.getAttribute('src')!==url) img.src=url;
+      el.classList.add('has-img'); tag&&tag.remove();
+      if(id==='seg-lathe'&&lathe){ lathe.stop(); }
+      if(id==='hero-3'&&hero){ hero.stop(); }
+    } else {
+      img&&img.remove(); el.classList.remove('has-img');
+      if(preview() && SLOT_INFO[id] && !tag){ tag=document.createElement('span'); tag.className='slot-tag'; tag.innerHTML=`<b>Photo slot</b> · ${esc(SLOT_INFO[id].label)} · ${esc(SLOT_INFO[id].size.split(',')[0])}`; el.appendChild(tag); }
+      if(!preview()&&tag) tag.remove();
+    }
+  });
+}
+/* hero slider */
+function heroSlider(){
+  const wrap=$('#heroSlides'); if(!wrap) return;
+  const slides=$$('.hero-slide',wrap), dots=$$('.hero-dots [data-go]'); let i=0, timer=null;
+  const go=n=>{ i=(n+slides.length)%slides.length; slides.forEach((s,k)=>s.classList.toggle('is-active',k===i)); dots.forEach((d,k)=>d.setAttribute('aria-selected',k===i));
+    if(hero){ const lathSlide=slides[i].dataset.slot==='hero-3'&&!slides[i].classList.contains('has-img'); lathSlide?hero.start():hero.stop(); } };
+  const play=()=>{ if(reduceMotion) return; clearInterval(timer); timer=setInterval(()=>go(i+1),6500); };
+  dots.forEach(d=>d.addEventListener('click',()=>{ go(+d.dataset.go); play(); }));
+  const sec=wrap.closest('.hero-photo'); sec.addEventListener('mouseenter',()=>clearInterval(timer)); sec.addEventListener('mouseleave',play);
+  go(0); play();
+}
 /* =====================================================================
    BOOKING — call back / workshop visit (saved as leads, no online quotes)
    ===================================================================== */
@@ -559,7 +611,7 @@ function bookingForm(seg, id, type='callback'){
   </form>`;
 }
 function renderEnquiries(){
-  $$('[data-enquiry]').forEach(slot=>{ const seg=slot.dataset.enquiry; slot.innerHTML=bookingForm(seg,'enq-'+seg+(slot.dataset.slot||'')); });
+  $$('[data-enquiry]').forEach(slot=>{ const seg=slot.dataset.enquiry; slot.innerHTML=bookingForm(seg,'enq-'+seg+(slot.dataset.suffix||'')); });
 }
 function openBooking(type='callback', seg='any'){
   const dlg=$('#bookDlg'), body=$('#bookDlgBody');
@@ -671,12 +723,13 @@ const TABS = {
       <td style="max-width:280px"><span class="muted">${esc((p.text||'').slice(0,90))}${(p.text||'').length>90?'…':''}</span></td><td>${esc(REVIEW_SEG[p.segment]||'')}</td><td class="stars" aria-label="${p.rating} out of 5">${STARS(p.rating)}</td>` }
 };
 function drawAdmin(){
+  if(state.tab==='images') return drawImagesTab();
   const root=$('#adminRoot'), T=TABS[state.tab];
   const rows=T.sort(list()), live=rows.filter(p=>p.visible!==false).length;
   root.innerHTML=`
     <div class="admin-top">
       <div style="display:grid;gap:6px"><span class="eyebrow">${state.demo?'Demo mode · changes are not saved':'Staff · '+esc(state.user.email)}</span><h1>Website content</h1>
-        <div class="chips" role="tablist" aria-label="Content type">${Object.entries(TABS).map(([k,t])=>{ const n=k==='leads'?state.admin.leads.filter(l=>l.status==='new').length:0; return `<button class="chip" type="button" role="tab" data-tab="${k}" aria-pressed="${state.tab===k}">${t.label} (${state.admin[k].length})${n?` <span class="count-new">${n} new</span>`:''}</button>`; }).join('')}</div></div>
+        <div class="chips" role="tablist" aria-label="Content type">${Object.entries(TABS).map(([k,t])=>{ const n=k==='leads'?state.admin.leads.filter(l=>l.status==='new').length:0; return `<button class="chip" type="button" role="tab" data-tab="${k}" aria-pressed="${state.tab===k}">${t.label} (${state.admin[k].length})${n?` <span class="count-new">${n} new</span>`:''}</button>`; }).join('')}<button class="chip" type="button" role="tab" data-tab="images" aria-pressed="${state.tab==='images'}">Site photos (${Object.keys(state.siteImages||{}).length}/${Object.keys(SLOT_INFO).length})</button></div></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">${state.tab==='leads'?'':`<span class="muted" style="font-size:14px">${live} of ${rows.length} visible on the website</span>`}
         <button class="btn btn-brand" type="button" id="addBtn">+ Add ${T.noun}</button>${fb?'<button class="btn btn-line" type="button" id="outBtn">Sign out</button>':''}</div>
     </div>
@@ -692,6 +745,43 @@ function drawAdmin(){
   $$('tr[data-id]',root).forEach(tr=>{ const open=()=>{ const src=list().find(p=>p.id===tr.dataset.id); state.editing={...T.blank(),...src,images:[...(src.images||[])]}; drawAdmin(); };
     tr.onclick=open; tr.onkeydown=e=>{ if(e.key==='Enter') open(); }; });
   if(state.editing) drawEditor();
+}
+
+function drawImagesTab(){
+  const root=$('#adminRoot'), imgs=state.siteImages||{}, filled=Object.keys(imgs).length, total=Object.keys(SLOT_INFO).length;
+  root.innerHTML=`
+    <div class="admin-top">
+      <div style="display:grid;gap:6px"><span class="eyebrow">${state.demo?'Demo mode · changes are not saved':'Staff · '+esc(state.user.email)}</span><h1>Website content</h1>
+        <div class="chips" role="tablist">${Object.entries(TABS).map(([k,t])=>`<button class="chip" type="button" data-tab="${k}" aria-pressed="false">${t.label} (${state.admin[k].length})</button>`).join('')}<button class="chip" type="button" data-tab="images" aria-pressed="true">Site photos (${filled}/${total})</button></div></div>
+      <p class="muted" style="max-width:34em;font-size:14px">Upload a photo to any slot and it replaces the drawing on the website straight away. Use real photos of your own work. Photos are resized and compressed automatically.</p>
+    </div>
+    ${SLOTS.map(g=>`<section class="slot-group"><h2>${esc(g.group)} <span class="muted">· best size ${esc(g.size)}</span></h2><div class="slot-cards">
+      ${g.items.map(([id,label,hint])=>`<div class="slot-card">
+        <div class="slot-prev">${imgs[id]?`<img src="${esc(imgs[id])}" alt="">`:'<span>No photo yet</span>'}</div>
+        <div class="slot-meta"><b>${esc(label)}</b>${hint?`<span class="muted">${esc(hint)}</span>`:''}
+          <div class="slot-btns"><label class="btn btn-line btn-sm" for="sf-${id}">${imgs[id]?'Replace':'Upload'}</label><input type="file" id="sf-${id}" accept="image/*" hidden data-slotfile="${id}">
+          ${imgs[id]?`<button class="btn btn-ghost btn-sm" type="button" data-slotrm="${id}">Remove</button>`:''}</div></div></div>`).join('')}
+    </div></section>`).join('')}`;
+  $$('[data-tab]',root).forEach(b=>b.onclick=()=>{ state.tab=b.dataset.tab; state.editing=null; drawAdmin(); });
+  $$('[data-slotfile]',root).forEach(inp=>inp.onchange=()=>inp.files[0]&&uploadSlot(inp.dataset.slotfile,inp.files[0]));
+  $$('[data-slotrm]',root).forEach(b=>b.onclick=()=>removeSlot(b.dataset.slotrm));
+}
+async function uploadSlot(id,file){
+  toast('Uploading photo…');
+  try{
+    const blob=await compress(file, id.startsWith('hero')?2200:1600);
+    let url;
+    if(state.demo||!fb){ url=await new Promise(r=>{ const fr=new FileReader(); fr.onload=()=>r(fr.result); fr.readAsDataURL(blob); }); }
+    else { const ref=fb.storage.ref(`website/site/${id}-${Date.now()}.webp`); await ref.put(blob,{contentType:'image/webp',cacheControl:'public,max-age=31536000'}); url=await ref.getDownloadURL();
+      await fb.db.collection(CONFIG.settingsCollection).doc('images').set({[id]:url},{merge:true}); }
+    state.siteImages={...state.siteImages,[id]:url}; applySlots(); drawImagesTab(); toast(state.demo?'Photo placed (demo, not saved)':'Photo is live on the website');
+  }catch(e){ toast('Upload failed: '+(e.code||e.message)); }
+}
+async function removeSlot(id){
+  try{
+    if(!state.demo&&fb) await fb.db.collection(CONFIG.settingsCollection).doc('images').update({[id]:firebase.firestore.FieldValue.delete()});
+    const n={...state.siteImages}; delete n[id]; state.siteImages=n; applySlots(); drawImagesTab(); toast('Photo removed');
+  }catch(e){ toast('Couldn’t remove: '+(e.code||e.message)); }
 }
 function opt(obj,sel,keys){ return (keys||Object.keys(obj)).map(k=>`<option value="${k}"${String(k)===String(sel)?' selected':''}>${esc(obj[k])}</option>`).join(''); }
 const numOrNull=v=>{ v=String(v??'').replace(/[^\d.]/g,''); return v===''?null:Number(v); };
@@ -869,8 +959,8 @@ function route(ev){
   if(view==='product') renderProduct(id);
   if(view==='project') renderProjectDetail(id);
   if(view==='admin') renderAdmin();
-  if(view==='home'){ requestAnimationFrame(()=>hero&&hero.start()); } else hero&&hero.stop();
-  if(view==='lathe' && $('#latheCanvas')){ if(!lathe) lathe=latheScene($('#latheCanvas'),{style:'pillar',species:'teak'}); requestAnimationFrame(()=>lathe.start()); } else lathe&&lathe.stop();
+  if(view!=='home') hero&&hero.stop();
+  if(view==='lathe' && $('#latheCanvas') && !(state.siteImages||{})['seg-lathe']){ if(!lathe) lathe=latheScene($('#latheCanvas'),{style:'pillar',species:'teak'}); requestAnimationFrame(()=>lathe.start()); } else lathe&&lathe.stop();
   requestAnimationFrame(paintStatic);
   if(anchor) requestAnimationFrame(()=>anchor.scrollIntoView({behavior:reduceMotion?'auto':'smooth'}));
   else if(ev) window.scrollTo({top:0,behavior:'instant'});
@@ -911,8 +1001,8 @@ let rT; window.addEventListener('resize',()=>{ clearTimeout(rT); rT=setTimeout((
   applyTheme(store.get('af-theme'));
   fillStatic(); renderEnquiries(); renderTrust();
   hero=$('#heroCanvas') ? latheScene($('#heroCanvas'),{style:'baluster',species:'teak',shavings:false}) : null;
-  route(); renderFeatured(); renderProjects();
+  route(); renderFeatured(); renderProjects(); applySlots(); heroSlider();
   await loadData();
-  renderFeatured(); renderProjects(); renderReviews(); route();
+  renderFeatured(); renderProjects(); renderReviews(); route(); applySlots();
   if(fb) fb.auth.onAuthStateChanged(u=>{ state.user=u; state._adminLoaded=false; if(!$('[data-view="admin"]').hidden) renderAdmin(); });
 })();

@@ -72,15 +72,21 @@
 
 <main id="main">
 <div data-view="home">
-  <section class="hero">
-    <div class="wrap hero-grid">
+  <section class="hero-photo" aria-label="Amar Furniture, Nashik">
+    <div class="hero-slides" id="heroSlides">
+      <a class="hero-slide slot is-active" href="/wooden-furniture/" data-slot="hero-1" aria-label="Wooden Furniture"><canvas data-art="mandir" data-wood="teak"></canvas><span class="hs-cap"><b>Wooden Furniture</b><span>Explore →</span></span></a>
+      <a class="hero-slide slot" href="/modular-kitchen-home-interior/" data-slot="hero-2" aria-label="Modular Kitchen and Home Interior"><canvas data-art="kitchen" data-wood="oak"></canvas><span class="hs-cap"><b>Modular Kitchen &amp; Home Interior</b><span>Explore →</span></span></a>
+      <a class="hero-slide slot slot-dark" href="/lathe-works/" data-slot="hero-3" aria-label="Lathe Works"><canvas id="heroCanvas"></canvas><span class="hs-cap"><b>Lathe Works</b><span>Explore →</span></span></a>
+    </div>
+    <div class="hero-shade" aria-hidden="true"></div>
+    <div class="wrap hero-over">
       <div class="hero-copy">
         <span class="eyebrow">Nashik · Since 1991</span>
         <h1>Wooden furniture, modular kitchens and lathe work. <em>One workshop, one team.</em></h1>
         <p class="hero-lede">Bespoke solid wood furniture, plywood kitchens and wardrobes, and hand-turned pillars and balusters. Designed, made and installed by our own people in Nashik.</p>
         <div class="hero-cta">
           <a class="btn btn-brand" href="/shop/">Shop ready-made <svg><use href="#i-arrow"/></svg></a>
-          <a class="btn btn-line" href="/#projects-all">See completed projects</a>
+          <button class="btn btn-glass" type="button" data-book="visit">Visit the workshop</button>
         </div>
         <div class="hero-facts">
           <div class="fact"><b data-years>35</b><span>years in Nashik</span></div>
@@ -88,20 +94,11 @@
           <div class="fact"><b>3</b><span>departments, in-house</span></div>
         </div>
       </div>
-      <div class="hero-mosaic">
-        <a class="tile tile-lathe" href="/lathe-works/" aria-label="Lathe Works">
-          <canvas id="heroCanvas"></canvas>
-          <span class="tile-label"><span class="eyebrow-l">Lathe Works</span><span class="spec">TEAK · Ø 150 mm · L 900 mm</span></span>
-        </a>
-        <a class="tile" href="/wooden-furniture/" aria-label="Wooden Furniture">
-          <canvas data-art="mandir" data-wood="teak"></canvas>
-          <span class="tile-label"><span class="eyebrow-l">Wooden Furniture</span></span>
-        </a>
-        <a class="tile" href="/modular-kitchen-home-interior/" aria-label="Modular Kitchen and Home Furniture">
-          <canvas data-art="kitchen" data-wood="oak"></canvas>
-          <span class="tile-label"><span class="eyebrow-l">Modular Kitchen &amp; Home</span></span>
-        </a>
-      </div>
+    </div>
+    <div class="hero-dots" role="tablist" aria-label="Choose slide">
+      <button type="button" role="tab" aria-label="Wooden Furniture" aria-selected="true" data-go="0"></button>
+      <button type="button" role="tab" aria-label="Modular Kitchen and Home Interior" aria-selected="false" data-go="1"></button>
+      <button type="button" role="tab" aria-label="Lathe Works" aria-selected="false" data-go="2"></button>
     </div>
   </section>
 
@@ -114,6 +111,23 @@
     </div>
   </section>
 
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head"><div class="titles"><span class="eyebrow">Explore</span><h2>What are you looking for?</h2></div></div>
+      <div class="cat-grid">
+        <a class="cat-tile slot" href="/shop/?cat=furniture" data-go-cat="furniture" data-slot="cat-sofa"><canvas data-art="sofa" data-wood="teak"></canvas><span>Wooden Sofas</span></a>
+        <a class="cat-tile slot" href="/shop/?cat=furniture" data-go-cat="furniture" data-slot="cat-dining"><canvas data-art="dining-table" data-wood="sheesham"></canvas><span>Dining Sets</span></a>
+        <a class="cat-tile slot" href="/shop/?cat=mandir" data-go-cat="mandir" data-slot="cat-mandir"><canvas data-art="mandir" data-wood="teak"></canvas><span>Home Mandirs</span></a>
+        <a class="cat-tile slot" href="/shop/?cat=mandir" data-go-cat="mandir" data-slot="cat-zula"><canvas data-art="zula" data-wood="teak"></canvas><span>Zulas</span></a>
+        <a class="cat-tile slot" href="/modular-kitchen-home-interior/" data-slot="cat-kitchen"><canvas data-art="kitchen" data-wood="oak"></canvas><span>Modular Kitchens</span></a>
+        <a class="cat-tile slot" href="/modular-kitchen-home-interior/" data-slot="cat-wardrobe"><canvas data-art="wardrobe" data-wood="ply"></canvas><span>Wardrobes</span></a>
+        <a class="cat-tile slot" href="/lathe-works/" data-slot="cat-pillar"><canvas data-art="pillar" data-wood="teak"></canvas><span>Wooden Pillars</span></a>
+        <a class="cat-tile slot" href="/lathe-works/" data-slot="cat-baluster"><canvas data-art="baluster" data-wood="teak"></canvas><span>Balusters &amp; Railings</span></a>
+      </div>
+    </div>
+  </section>
+
   <section class="section section-alt">
     <div class="wrap">
       <div class="section-head">
@@ -122,15 +136,15 @@
       </div>
       <div class="lines">
         <a class="line-card" href="/wooden-furniture/">
-          <div class="art"><canvas data-art="sofa" data-wood="teak"></canvas></div>
+          <div class="art slot" data-slot="dept-wooden"><canvas data-art="sofa" data-wood="teak"></canvas></div>
           <div class="body"><h3>Wooden Furniture</h3><p>Bespoke solid wood sofas, beds, dining sets, mandirs and zulas in seasoned teak and sheesham, made to your size and design.</p><span class="go">Wooden Furniture →</span></div>
         </a>
         <a class="line-card" href="/modular-kitchen-home-interior/">
-          <div class="art"><canvas data-art="kitchen" data-wood="oak"></canvas></div>
+          <div class="art slot" data-slot="dept-modular"><canvas data-art="kitchen" data-wood="oak"></canvas></div>
           <div class="body"><h3>Modular Kitchen &amp; Home Furniture</h3><p>Kitchens, wardrobes, TV units and full-home fit-outs in branded plywood, measured and installed by our team.</p><span class="go">Modular Kitchen &amp; Home →</span></div>
         </a>
         <a class="line-card" href="/lathe-works/">
-          <div class="art"><canvas data-art="baluster" data-wood="teak"></canvas></div>
+          <div class="art slot" data-slot="dept-lathe"><canvas data-art="baluster" data-wood="teak"></canvas></div>
           <div class="body"><h3>Lathe Works</h3><p>Pillars, balusters, railings, balls, legs and mandir parts, turned to your drawing. Single pieces or bulk for builders.</p><span class="go">Lathe Works →</span></div>
         </a>
       </div>
@@ -148,6 +162,21 @@
   </section>
 
 
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="titles"><span class="eyebrow">Inside our workshop</span><h2>Where everything is made</h2></div>
+        <p style="max-width:30em">Every piece is cut, joined, turned, polished and fitted by our own people. You're welcome to come and see it happen.</p>
+      </div>
+      <div class="work-grid">
+        <figure class="work-tile slot slot-dark" data-slot="work-1"><canvas data-grain="teak"></canvas><figcaption>Turning on the lathe</figcaption></figure>
+        <figure class="work-tile slot slot-dark" data-slot="work-2"><canvas data-grain="sheesham"></canvas><figcaption>Joinery by hand</figcaption></figure>
+        <figure class="work-tile slot slot-dark" data-slot="work-3"><canvas data-grain="mango"></canvas><figcaption>Polishing &amp; finishing</figcaption></figure>
+        <figure class="work-tile slot slot-dark" data-slot="work-4"><canvas data-grain="oak"></canvas><figcaption>Installation on site</figcaption></figure>
+      </div>
+    </div>
+  </section>
   <section class="section section-alt">
     <div class="wrap">
       <div class="section-head"><div class="titles"><span class="eyebrow">Customer reviews</span><h2>What our customers say</h2></div></div>
