@@ -29,14 +29,23 @@ const CONFIG = {
   reviewsCollection: 'website_reviews',
   leadsCollection: 'website_leads',
   settingsCollection: 'website_settings',
-  firebase: {
+  /*firebase: {
     apiKey: '',                       // TODO: paste from Firebase console → Project settings → Your apps
     authDomain: 'amar-furniture-e4782.firebaseapp.com',
     projectId: 'amar-furniture-e4782',
     storageBucket: 'amar-furniture-e4782.appspot.com', // check: may be amar-furniture-e4782.firebasestorage.app
     messagingSenderId: '1084205045390',
     appId: '1:1084205045390:web:0a41c4f774d08d819c5bdf'
+  }*/
+  firebase: {
+    apiKey: 'AIzaSyARVv1P0ssuKzfpS1M59AB-rG3riIWh-2c',
+    authDomain: 'amar-furniture-e4782.firebaseapp.com',
+    projectId: 'amar-furniture-e4782',
+    storageBucket: 'amar-furniture-e4782.firebasestorage.app',
+    messagingSenderId: '1084205045390',
+    appId: '1:1084205045390:web:7d6961404ce299439c5bdf'
   }
+   
 };
 const FB_VER = '10.14.1';
 
