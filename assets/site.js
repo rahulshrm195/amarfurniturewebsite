@@ -29,14 +29,6 @@ const CONFIG = {
   reviewsCollection: 'website_reviews',
   leadsCollection: 'website_leads',
   settingsCollection: 'website_settings',
-  /*firebase: {
-    apiKey: '',                       // TODO: paste from Firebase console → Project settings → Your apps
-    authDomain: 'amar-furniture-e4782.firebaseapp.com',
-    projectId: 'amar-furniture-e4782',
-    storageBucket: 'amar-furniture-e4782.appspot.com', // check: may be amar-furniture-e4782.firebasestorage.app
-    messagingSenderId: '1084205045390',
-    appId: '1:1084205045390:web:0a41c4f774d08d819c5bdf'
-  }*/
   firebase: {
     apiKey: 'AIzaSyARVv1P0ssuKzfpS1M59AB-rG3riIWh-2c',
     authDomain: 'amar-furniture-e4782.firebaseapp.com',
@@ -45,7 +37,6 @@ const CONFIG = {
     messagingSenderId: '1084205045390',
     appId: '1:1084205045390:web:7d6961404ce299439c5bdf'
   }
-   
 };
 const FB_VER = '10.14.1';
 
@@ -348,6 +339,7 @@ async function initFirebase(){
 }
 async function loadData(){
   try{ fb = await initFirebase(); }catch(e){ console.warn(e); fb=null; }
+  if(fb){ try{ const si=await fb.db.collection(CONFIG.settingsCollection).doc('images').get(); state.siteImages=si.exists?si.data():{}; store.set('af-site-images',JSON.stringify(state.siteImages)); applySlots(); }catch(e){ console.warn('site images',e); } }
   if(!fb){ state.products = SAMPLE.map(p=>({...p, visible:true, _sample:true})); state.projects = SAMPLE_PROJECTS.map(p=>({...p, visible:true, _sample:true})); state.reviews = SAMPLE_REVIEWS.map(p=>({...p, visible:true, _sample:true})); state.siteImages={}; state.mode='sample'; return; }
   try{
     const [a,b,c] = await Promise.all([
@@ -358,7 +350,7 @@ async function loadData(){
     state.products = a.docs.map(d=>({id:d.id, ...d.data()}));
     state.projects = b.docs.map(d=>({id:d.id, ...d.data()}));
     state.reviews = c.docs.map(d=>({id:d.id, ...d.data()}));
-    try{ const si=await fb.db.collection(CONFIG.settingsCollection).doc('images').get(); state.siteImages=si.exists?si.data():{}; }catch(e){ state.siteImages={}; }
+
     state.mode='live';
   }catch(e){ console.warn(e); state.products=[]; state.projects=[]; state.reviews=[]; state.mode='error'; }
 }
@@ -783,13 +775,13 @@ async function uploadSlot(id,file){
     if(state.demo||!fb){ url=await new Promise(r=>{ const fr=new FileReader(); fr.onload=()=>r(fr.result); fr.readAsDataURL(blob); }); }
     else { const ref=fb.storage.ref(`website/site/${id}-${Date.now()}.webp`); await ref.put(blob,{contentType:'image/webp',cacheControl:'public,max-age=31536000'}); url=await ref.getDownloadURL();
       await fb.db.collection(CONFIG.settingsCollection).doc('images').set({[id]:url},{merge:true}); }
-    state.siteImages={...state.siteImages,[id]:url}; applySlots(); drawImagesTab(); toast(state.demo?'Photo placed (demo, not saved)':'Photo is live on the website');
+    state.siteImages={...state.siteImages,[id]:url}; if(!state.demo) store.set('af-site-images',JSON.stringify(state.siteImages)); applySlots(); drawImagesTab(); toast(state.demo?'Photo placed (demo, not saved)':'Photo is live on the website');
   }catch(e){ toast('Upload failed: '+(e.code||e.message)); }
 }
 async function removeSlot(id){
   try{
     if(!state.demo&&fb) await fb.db.collection(CONFIG.settingsCollection).doc('images').update({[id]:firebase.firestore.FieldValue.delete()});
-    const n={...state.siteImages}; delete n[id]; state.siteImages=n; applySlots(); drawImagesTab(); toast('Photo removed');
+    const n={...state.siteImages}; delete n[id]; state.siteImages=n; if(!state.demo) store.set('af-site-images',JSON.stringify(n)); applySlots(); drawImagesTab(); toast('Photo removed');
   }catch(e){ toast('Couldn’t remove: '+(e.code||e.message)); }
 }
 function opt(obj,sel,keys){ return (keys||Object.keys(obj)).map(k=>`<option value="${k}"${String(k)===String(sel)?' selected':''}>${esc(obj[k])}</option>`).join(''); }
@@ -1009,6 +1001,7 @@ let rT; window.addEventListener('resize',()=>{ clearTimeout(rT); rT=setTimeout((
 (async function(){
   applyTheme(store.get('af-theme'));
   fillStatic(); renderEnquiries(); renderTrust();
+  if(CONFIG.firebase.apiKey){ try{ const c=JSON.parse(store.get('af-site-images')||'null'); if(c) state.siteImages=c; }catch(e){} }
   hero=$('#heroCanvas') ? latheScene($('#heroCanvas'),{style:'baluster',species:'teak',shavings:false}) : null;
   route(); renderFeatured(); renderProjects(); applySlots(); heroSlider();
   await loadData();
