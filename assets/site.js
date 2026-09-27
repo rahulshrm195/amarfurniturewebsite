@@ -16,7 +16,7 @@ const CONFIG = {
   landmark: 'Near Janardan Swami Math',
   mapsUrl: 'https://maps.app.goo.gl/jqzGrUPHQp7oLZap8',                // Google Maps share link (opens our listing)
   directionsUrl: 'https://www.google.com/maps/dir/?api=1&destination=Amar+Furniture%2C+Chh+Sambhaji+Nagar+Naka%2C+Vaishnavi+Park%2C+Nashik%2C+Maharashtra+422003', // opens navigation in Google Maps
-  mapEmbed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d234.31540276414702!2d73.82109932471363!3d20.006565344989774!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bddea6474486e15%3A0x8187cd84aa23ba83!2sAmar%20Furniture!5e0!3m2!1sen!2sin!4v1790503941298!5m2!1sen!2sin',
+  mapEmbed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1800!2d73.82109932471363!3d20.006565344989774!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bddea6474486e15%3A0x8187cd84aa23ba83!2sAmar%20Furniture!5e0!3m2!1sen!2sin!4v1790503941298!5m2!1sen!2sin',
   siteUrl: 'https://amarfurniture.in/',
   instagram: '',                      // e.g. https://instagram.com/amarfurniture.nashik
   youtube: '',                        // e.g. https://youtube.com/@amarfurniture.nashik
@@ -26,11 +26,14 @@ const CONFIG = {
   warranty: { wooden: '', modular: '', lathe: '' },
   // Hardware and board brands you actually use in modular work. Empty = section hidden.
   modularBrands: [],                                            // e.g. ['Hettich', 'Hafele', 'Ebco', 'Century Ply']
+  // Google Analytics 4 Measurement ID, e.g. 'G-AB12CD34EF'. Empty = analytics off.
+  gaId: '',
   adminEmails: ['rahulshrm195@gmail.com'],
   collection: 'website_products',
   projectsCollection: 'website_projects',
   reviewsCollection: 'website_reviews',
   leadsCollection: 'website_leads',
+  teamCollection: 'website_team',
   settingsCollection: 'website_settings',
   firebase: {
     apiKey: 'AIzaSyARVv1P0ssuKzfpS1M59AB-rG3riIWh-2c',
@@ -44,7 +47,7 @@ const CONFIG = {
 const FB_VER = '10.14.1';
 
 /* ---------------- constants ---------------- */
-const SEGMENTS = { wooden:'Wooden Furniture', modular:'Modular Kitchen & Home Furniture', lathe:'Lathe Works' };
+const SEGMENTS = { wooden:'Wooden Furniture', modular:'Modular Kitchen & Home Interior', lathe:'Lathe Works' };
 const CATS = { furniture:'Wooden furniture', mandir:'Mandir & zula', lathe:'Lathe turned' };
 const KINDS = { sofa:'Sofa / diwan', 'dining-table':'Dining table', chair:'Chair', bed:'Bed', bench:'Bench', stool:'Stool', 'coffee-table':'Coffee / side table', 'side-table':'Bedside table',
   mandir:'Mandir', zula:'Zula (swing)', pillar:'Pillar', baluster:'Baluster', ball:'Ball / finial', legs:'Legs (set)', mehrab:'Mehrab / arch', threshold:'Threshold (umbra)',
@@ -85,6 +88,14 @@ const SAMPLE_REVIEWS = [
   { id:'r2', name:'Customer name', area:'Area, Nashik', segment:'wooden', rating:5, source:'Google', featured:true, text:'Keep the customer’s own words. Short reviews that mention a specific piece, like a mandir or a dining set, work best.' },
   { id:'r3', name:'Architect name', area:'Architect', segment:'lathe', rating:5, source:'WhatsApp', featured:true, text:'A line from an architect or builder you work with builds trust with other professionals. Ask their permission before publishing.' }
 ];
+const SAMPLE_TEAM = [
+  { id:'t1', name:'Team member', role:'Senior carpenter', dept:'wooden', since:1998, village:'Village name', featured:true, images:[] },
+  { id:'t2', name:'Team member', role:'Lathe operator', dept:'lathe', since:2006, village:'Village name', featured:true, images:[] },
+  { id:'t3', name:'Team member', role:'Carpenter', dept:'modular', since:2012, village:'', featured:true, images:[] },
+  { id:'t4', name:'Team member', role:'Polish karigar', dept:'wooden', since:2015, village:'Village name', featured:true, images:[] },
+  { id:'t5', name:'Team member', role:'Fitter / installer', dept:'modular', since:2019, village:'', featured:false, images:[] }
+];
+const TEAM_DEPTS = { wooden:'Wooden Furniture', modular:'Modular Kitchen & Home Interior', lathe:'Lathe Works', any:'Workshop' };
 const SAMPLE_LEADS = [
   { id:'L1', type:'callback', name:'Sample customer', phone:'9800000001', segment:'modular', needs:['Kitchen','Wardrobe'], date:'', window:'evening', area:'College Road', message:'New 2BHK flat, possession next month.', status:'new', createdAt:{seconds:Date.now()/1000-3600}, _sample:true },
   { id:'L2', type:'visit', name:'Sample customer', phone:'9800000002', segment:'wooden', needs:['Mandir'], date:'', window:'morning', area:'Gangapur Road', message:'', status:'called', remarks:'Coming Sunday with family.', createdAt:{seconds:Date.now()/1000-86400}, _sample:true }
@@ -97,7 +108,7 @@ const EXAMPLE = { google:{ rating:4.9, count:'—', reviewsUrl:'' },
 const $ = (s, r=document) => r.querySelector(s);
 /* ---- URLs: real pages on the live site, #hash views in the single-file preview ---- */
 const MPA = !!document.body.dataset.page;
-const PATHS = { home:'/', wooden:'/wooden-furniture/', modular:'/modular-kitchen-home-interior/', lathe:'/lathe-works/', shop:'/shop/', projects:'/projects/', about:'/about/', contact:'/contact/', admin:'/staff/' };
+const PATHS = { home:'/', wooden:'/wooden-furniture/', modular:'/modular-kitchen-home-interior/', lathe:'/lathe-works/', shop:'/shop/', projects:'/projects/', about:'/about/', contact:'/contact/', team:'/team/', admin:'/staff/' };
 const SITE = CONFIG.siteUrl.replace(/\/$/,'');
 const hrefView = v => MPA ? PATHS[v] : '#'+v;
 const hrefProduct = id => MPA ? '/shop/?p='+encodeURIComponent(id) : '#p-'+id;
@@ -110,6 +121,7 @@ const slugify = t => String(t).toLowerCase().replace(/&/g,' and ').replace(/[^a-
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const inr = n => (n || n === 0) && n !== '' ? '₹' + Number(n).toLocaleString('en-IN', {maximumFractionDigits:0}) : '';
 const wa = text => `https://wa.me/${CONFIG.phone}?text=${encodeURIComponent(text)}`;
+function track(name, params={}){ try{ if(window.gtag) window.gtag('event', name, params); }catch(e){} }
 const store = { get(k){ try{return localStorage.getItem(k)}catch(e){return null} }, set(k,v){ try{localStorage.setItem(k,v)}catch(e){} } };
 function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),2600); }
 function hash32(str){ let h=2166136261; for(const c of String(str)){ h^=c.charCodeAt(0); h=Math.imul(h,16777619);} return h>>>0; }
@@ -329,7 +341,7 @@ function latheScene(canvas, opts={}){
 /* =====================================================================
    DATA
    ===================================================================== */
-const state = { siteImages: {}, products: [], projects: [], reviews: [], mode: 'loading', cat: 'all', q: '', sort: 'featured', projSeg: 'all', user: null, admin: { products: [], projects: [], reviews: [], leads: [] }, tab: 'leads', editing: null, demo: false };
+const state = { siteImages: {}, products: [], projects: [], reviews: [], team: [], mode: 'loading', cat: 'all', q: '', sort: 'featured', projSeg: 'all', user: null, admin: { products: [], projects: [], reviews: [], leads: [], team: [] }, tab: 'leads', editing: null, demo: false };
 let fb = null; // { db, auth, storage }
 
 function loadScript(src){ return new Promise((res,rej)=>{ const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=()=>rej(new Error('Failed to load '+src)); document.head.appendChild(s); }); }
@@ -344,19 +356,20 @@ async function initFirebase(){
 async function loadData(){
   try{ fb = await initFirebase(); }catch(e){ console.warn(e); fb=null; }
   if(fb){ try{ const si=await fb.db.collection(CONFIG.settingsCollection).doc('images').get(); state.siteImages=si.exists?si.data():{}; store.set('af-site-images',JSON.stringify(state.siteImages)); applySlots(); }catch(e){ console.warn('site images',e); } }
-  if(!fb){ state.products = SAMPLE.map(p=>({...p, visible:true, _sample:true})); state.projects = SAMPLE_PROJECTS.map(p=>({...p, visible:true, _sample:true})); state.reviews = SAMPLE_REVIEWS.map(p=>({...p, visible:true, _sample:true})); state.siteImages={}; state.mode='sample'; return; }
+  if(!fb){ state.products = SAMPLE.map(p=>({...p, visible:true, _sample:true})); state.projects = SAMPLE_PROJECTS.map(p=>({...p, visible:true, _sample:true})); state.reviews = SAMPLE_REVIEWS.map(p=>({...p, visible:true, _sample:true})); state.team = SAMPLE_TEAM.map(p=>({...p, visible:true, _sample:true})); state.siteImages={}; state.mode='sample'; return; }
   try{
     const [a,b,c] = await Promise.all([
       fb.db.collection(CONFIG.collection).where('visible','==',true).get(),
       fb.db.collection(CONFIG.projectsCollection).where('visible','==',true).get(),
       fb.db.collection(CONFIG.reviewsCollection).where('visible','==',true).get()
     ]);
+    try{ const t=await fb.db.collection(CONFIG.teamCollection).where('visible','==',true).get(); state.team=t.docs.map(d=>({id:d.id, ...d.data()})); }catch(e){ console.warn('team',e); state.team=[]; }
     state.products = a.docs.map(d=>({id:d.id, ...d.data()}));
     state.projects = b.docs.map(d=>({id:d.id, ...d.data()}));
     state.reviews = c.docs.map(d=>({id:d.id, ...d.data()}));
 
     state.mode='live';
-  }catch(e){ console.warn(e); state.products=[]; state.projects=[]; state.reviews=[]; state.mode='error'; }
+  }catch(e){ console.warn(e); state.products=[]; state.projects=[]; state.reviews=[]; state.team=[]; state.mode='error'; }
 }
 function sortProducts(list, how){
   const ts=p=>(p.createdAt&&p.createdAt.seconds)||0;
@@ -408,6 +421,8 @@ function renderProduct(id){
   const p=state.products.find(x=>x.id===id), root=$('#productView');
   if(!p){ root.innerHTML = state.mode==='loading' ? '<div class="empty">Loading…</div>' : `<div class="empty">This product isn't available any more. <a href="${hrefView('shop')}">Back to the shop</a></div>`; return; }
   const imgs=(p.images&&p.images.length)?p.images:[productArt(p)];
+  state.gallery={imgs,alt:p.name};
+  if(state._lastViewed!=='p'+p.id){ state._lastViewed='p'+p.id; track('view_item',{item_name:p.name, item_category:CATS[p.category]||p.category}); }
   const link=absProduct(p.id);
   const msg=`Hi Amar Furniture, I'd like to order:\n*${p.name}*${p.sku?` (Code ${p.sku})`:''}\n${p.price!=null&&p.price!==''?'Price: '+inr(p.price)+'\n':''}${link}\n\nPlease confirm availability and delivery.`;
   const rel=sortProducts(state.products.filter(x=>x.category===p.category&&x.id!==p.id),'featured').slice(0,4);
@@ -415,7 +430,7 @@ function renderProduct(id){
   root.innerHTML=`
     <nav class="crumbs" aria-label="Breadcrumb"><a href="${hrefView('shop')}">Shop</a><span>/</span><a href="${esc(hrefCat(p.category))}" data-go-cat="${esc(p.category)}">${esc(CATS[p.category]||'')}</a><span>/</span><span>${esc(p.name)}</span></nav>
     <div class="pd">
-      <div class="gallery"><div class="main"><img id="pdMain" src="${esc(imgs[0])}" alt="${esc(p.name)}"></div>
+      <div class="gallery"><button class="main" type="button" data-zoom="0" aria-label="View photo full screen"><img id="pdMain" src="${esc(imgs[0])}" alt="${esc(p.name)}"><span class="zoom-hint"><svg aria-hidden="true"><use href="#i-expand"/></svg>Full screen</span></button>
         ${imgs.length>1?`<div class="thumbs">${imgs.map((u,i)=>`<button type="button" data-src="${esc(u)}" aria-current="${i===0}" aria-label="Photo ${i+1}"><img src="${esc(u)}" alt=""></button>`).join('')}</div>`:''}</div>
       <div class="pd-info">
         <div style="display:grid;gap:12px"><span class="eyebrow">${esc(CATS[p.category]||'')}</span><h1>${esc(p.name)}</h1>
@@ -466,11 +481,13 @@ function renderProjectDetail(id){
   const j=state.projects.find(x=>x.id===id), root=$('#projectView');
   if(!j){ root.innerHTML = state.mode==='loading' ? '<div class="empty">Loading…</div>' : `<div class="empty">This project isn't available. <a href="${hrefView('projects')}">See all projects</a></div>`; return; }
   const imgs=(j.images&&j.images.length)?j.images:[projImg(j)];
+  state.gallery={imgs,alt:j.title};
+  if(state._lastViewed!=='j'+j.id){ state._lastViewed='j'+j.id; track('view_project',{project_name:j.title, department:SEGMENTS[j.segment]||j.segment}); }
   const more=state.projects.filter(x=>x.segment===j.segment&&x.id!==j.id).slice(0,3);
   root.innerHTML=`
     <nav class="crumbs" aria-label="Breadcrumb"><a href="${hrefView('projects')}">Projects</a><span>/</span><a href="${hrefView(j.segment)}">${esc(SEGMENTS[j.segment]||'')}</a><span>/</span><span>${esc(j.title)}</span></nav>
     <div class="pd">
-      <div class="gallery"><div class="main wide"><img id="pdMain" src="${esc(imgs[0])}" alt="${esc(j.title)}"></div>
+      <div class="gallery"><button class="main" type="button" data-zoom="0" aria-label="View photo full screen"><img id="pdMain" src="${esc(imgs[0])}" alt="${esc(j.title)}"><span class="zoom-hint"><svg aria-hidden="true"><use href="#i-expand"/></svg>Full screen</span></button>
         ${imgs.length>1?`<div class="thumbs">${imgs.map((u,i)=>`<button type="button" data-src="${esc(u)}" aria-current="${i===0}" aria-label="Photo ${i+1}"><img src="${esc(u)}" alt=""></button>`).join('')}</div>`:''}</div>
       <div class="pd-info">
         <div style="display:grid;gap:12px"><span class="eyebrow">Completed project · ${esc(SEGMENTS[j.segment]||'')}</span><h1>${esc(j.title)}</h1>
@@ -522,6 +539,31 @@ function renderTrust(){
 }
 
 /* =====================================================================
+   TEAM — people of Amar Furniture (website_team), shown on /team/, About and Home
+   ===================================================================== */
+const sortTeam = l => [...l].sort((a,b)=>((a.sort??999)-(b.sort??999)) || ((a.since||9999)-(b.since||9999)) || String(a.name).localeCompare(String(b.name)));
+const initials = n => String(n||'?').trim().split(/\s+/).slice(0,2).map(w=>w[0]||'').join('').toUpperCase();
+function teamCard(m){
+  const yrs = m.since ? new Date().getFullYear()-Number(m.since) : 0;
+  const photo = (m.images&&m.images[0]) ? `<img src="${esc(m.images[0])}" alt="${esc(m.name)}, ${esc(m.role||'team member')} at Amar Furniture, Nashik" loading="lazy">` : `<span class="team-initials" aria-hidden="true">${esc(initials(m.name))}</span>`;
+  return `<figure class="team-card"><div class="team-ph">${photo}${m._sample?'<span class="badge sample">Sample</span>':''}</div>
+    <figcaption><b>${esc(m.name)}</b><span class="team-role">${esc(m.role||'')}${m.dept&&m.dept!=='any'?` · ${esc(TEAM_DEPTS[m.dept]||'')}`:''}</span>
+    ${m.since?`<span class="team-meta">With us since ${esc(m.since)}${yrs>=1?` · ${yrs} year${yrs>1?'s':''}`:''}</span>`:''}
+    ${m.village?`<span class="team-meta">From ${esc(m.village)}</span>`:''}
+    ${m.about?`<span class="team-about">${esc(m.about)}</span>`:''}</figcaption></figure>`;
+}
+function renderTeam(){
+  const all=sortTeam(state.team||[]);
+  $$('[data-team]').forEach(slot=>{
+    let list=all;
+    if(slot.dataset.team==='featured'){ list=all.filter(m=>m.featured); if(list.length<4) list=[...list, ...all.filter(m=>!m.featured)]; list=list.slice(0,4); }
+    const sec=slot.closest('[data-hide-empty]'); if(sec) sec.hidden=!list.length;
+    slot.innerHTML = list.length ? `<div class="team-grid">${list.map(teamCard).join('')}</div>`
+      : (slot.dataset.team==='all' ? (state.mode==='loading' ? '<div class="empty">Loading…</div>' : '<div class="empty">Team profiles are being added. Come and meet everyone at the workshop.</div>') : '');
+  });
+}
+
+/* =====================================================================
    SITE PHOTOS — named slots filled from the Staff page (website_settings/images)
    ===================================================================== */
 const SLOTS = [
@@ -538,7 +580,8 @@ const SLOTS = [
     ['seg-wooden','Wooden Furniture page',''],['seg-modular','Modular Kitchen & Home Interior page',''],['seg-lathe','Lathe Works page','Replaces the lathe animation'] ]},
   { group:'Inside our workshop (home)', size:'1000 × 1250, portrait', items:[
     ['work-1','Turning on the lathe',''],['work-2','Joinery by hand',''],['work-3','Polishing & finishing',''],['work-4','Installation on site',''] ]},
-  { group:'About Us', size:'1600 × 1000, landscape', items:[ ['about-1','Family / team in the workshop','You and your father with the team'] ]}
+  { group:'About Us', size:'1600 × 1000, landscape', items:[ ['about-1','Family / team in the workshop','You and your father with the team'] ]},
+  { group:'Our team page', size:'1920 × 1080, landscape', items:[ ['team-group','Team group photo','Everyone together in the workshop, in good light'] ]}
 ];
 const SLOT_INFO = Object.fromEntries(SLOTS.flatMap(g=>g.items.map(([id,label,hint])=>[id,{label,hint,size:g.size,group:g.group}])));
 function applySlots(){
@@ -558,6 +601,7 @@ function applySlots(){
       if(!preview()&&tag) tag.remove();
     }
   });
+  $$('[data-hide-noimg]').forEach(el=>el.hidden=!(imgs[el.dataset.slot]) && !preview());
 }
 /* hero slider */
 function heroSlider(){
@@ -569,6 +613,28 @@ function heroSlider(){
   dots.forEach(d=>d.addEventListener('click',()=>{ go(+d.dataset.go); play(); }));
   const sec=wrap.closest('.hero-photo'); sec.addEventListener('mouseenter',()=>clearInterval(timer)); sec.addEventListener('mouseleave',play);
   go(0); play();
+}
+/* =====================================================================
+   LIGHTBOX — full-screen photo viewer for product / project photos
+   ===================================================================== */
+function openLightbox(start){
+  const g=state.gallery; if(!g||!g.imgs.length) return;
+  let i=start, lb=$('#lightbox');
+  if(!lb){
+    lb=document.createElement('div'); lb.id='lightbox'; lb.className='lightbox'; lb.setAttribute('role','dialog'); lb.setAttribute('aria-modal','true'); lb.setAttribute('aria-label','Photo viewer');
+    lb.innerHTML=`<img class="lb-img" alt=""><div class="lb-bar"><span class="lb-count"></span><button class="lb-btn lb-close" type="button" aria-label="Close">✕</button></div>
+      <button class="lb-btn lb-prev" type="button" aria-label="Previous photo">‹</button><button class="lb-btn lb-next" type="button" aria-label="Next photo">›</button>`;
+    document.body.appendChild(lb);
+  }
+  const img=$('.lb-img',lb), multi=g.imgs.length>1;
+  const show=n=>{ i=(n+g.imgs.length)%g.imgs.length; img.src=g.imgs[i]; img.alt=g.alt+(multi?` (photo ${i+1})`:''); $('.lb-count',lb).textContent=multi?`${i+1} / ${g.imgs.length}`:''; };
+  $('.lb-prev',lb).hidden=$('.lb-next',lb).hidden=!multi;
+  const close=()=>{ lb.classList.remove('open'); document.documentElement.style.overflow=''; document.removeEventListener('keydown',key); };
+  const key=e=>{ if(e.key==='Escape') close(); else if(e.key==='ArrowRight'&&multi) show(i+1); else if(e.key==='ArrowLeft'&&multi) show(i-1); };
+  lb.onclick=e=>{ if(e.target.closest('.lb-prev')) show(i-1); else if(e.target.closest('.lb-next')) show(i+1); else if(e.target.closest('.lb-close')||e.target===lb) close(); };
+  let x0=null; lb.onpointerdown=e=>{ x0=e.clientX; }; lb.onpointerup=e=>{ if(x0!=null&&multi&&Math.abs(e.clientX-x0)>50){ show(e.clientX<x0?i+1:i-1); } x0=null; };
+  document.addEventListener('keydown',key); show(i); lb.classList.add('open'); document.documentElement.style.overflow='hidden'; $('.lb-close',lb).focus();
+  track('photo_fullscreen',{item:g.alt});
 }
 /* =====================================================================
    BOOKING — call back / workshop visit (saved as leads, no online quotes)
@@ -641,6 +707,7 @@ async function submitBooking(f){
   try{
     if(fb){ await fb.db.collection(CONFIG.leadsCollection).add({...lead, createdAt:firebase.firestore.FieldValue.serverTimestamp()}); }
     else { state.admin.leads=state.admin.leads||[]; state.admin.leads.push({...lead,id:'L'+Date.now(),createdAt:{seconds:Date.now()/1000},_sample:true}); }
+    track('generate_lead',{type:lead.type, segment:lead.segment, page:lead.page});
     const dayLabel=(bookingDays().find(d=>d[0]===lead.date)||[,''])[1];
     f.outerHTML=`<div class="form enq booked" role="status"><svg aria-hidden="true"><use href="#i-check"/></svg>
       <h2>Thank you, ${esc(lead.name.split(' ')[0])}.</h2>
@@ -660,7 +727,7 @@ document.addEventListener('click',e=>{
 /* =====================================================================
    ADMIN — Products and Projects tabs
    ===================================================================== */
-const COL = { products: CONFIG.collection, projects: CONFIG.projectsCollection, reviews: CONFIG.reviewsCollection, leads: CONFIG.leadsCollection };
+const COL = { products: CONFIG.collection, projects: CONFIG.projectsCollection, reviews: CONFIG.reviewsCollection, leads: CONFIG.leadsCollection, team: CONFIG.teamCollection };
 const blankProduct = () => ({ id:null, name:'', category:'furniture', kind:'sofa', wood:'teak', finish:'', dims:'', price:null, mrp:null, stock:'in', leadTime:'', description:'', images:[], featured:false, visible:true, sku:'', sort:null });
 const blankProject = () => ({ id:null, title:'', segment:'wooden', kind:'other', material:'teak', location:'Nashik', year:new Date().getFullYear(), architect:'', summary:'', images:[], featured:false, visible:true });
 const list = () => state.admin[state.tab];
@@ -673,7 +740,7 @@ async function renderAdmin(){
       <p class="muted">Firebase isn't connected yet, so this is running as a preview. Try the editor in demo mode; nothing you change here is saved.</p>
       <button class="btn btn-brand" type="button" id="demoBtn">Open demo editor</button>
       <p class="muted" style="font-size:13px">To go live: paste the Firebase web config into <span class="mono">CONFIG.firebase</span> at the top of the script.</p></div>`;
-    $('#demoBtn').onclick=()=>{ state.demo=true; state.admin={ products:state.products.map(p=>({...p})), projects:state.projects.map(p=>({...p})), reviews:state.reviews.map(p=>({...p})), leads:(state.admin.leads&&state.admin.leads.length?state.admin.leads:SAMPLE_LEADS.map(p=>({...p}))) }; renderAdmin(); };
+    $('#demoBtn').onclick=()=>{ state.demo=true; state.admin={ products:state.products.map(p=>({...p})), projects:state.projects.map(p=>({...p})), reviews:state.reviews.map(p=>({...p})), team:state.team.map(p=>({...p})), leads:(state.admin.leads&&state.admin.leads.length?state.admin.leads:SAMPLE_LEADS.map(p=>({...p}))) }; renderAdmin(); };
     return;
   }
   if(fb && !state.user){
@@ -691,7 +758,8 @@ async function renderAdmin(){
     try{
       const [a,b,c,d]=await Promise.all([fb.db.collection(COL.products).get(), fb.db.collection(COL.projects).get(), fb.db.collection(COL.reviews).get(), fb.db.collection(COL.leads).orderBy('createdAt','desc').limit(500).get()]);
       const m=q=>q.docs.map(d=>({id:d.id,...d.data()}));
-      state.admin={ products:m(a), projects:m(b), reviews:m(c), leads:m(d) }; state._adminLoaded=true;
+      let t=[]; try{ t=m(await fb.db.collection(COL.team).get()); }catch(e){ console.warn('team',e); toast('Team list could not load. Add the website_team rule in Firestore.'); }
+      state.admin={ products:m(a), projects:m(b), reviews:m(c), leads:m(d), team:t }; state._adminLoaded=true;
     }catch(e){ root.innerHTML=`<div class="empty">Couldn't load: ${esc(e.message)}. Check the Firestore rules for the <span class="mono">website_*</span> collections.</div>`; return; }
   }
   drawAdmin();
@@ -705,6 +773,7 @@ const fmtTs = t => { const sec=t&&(t.seconds||(t.toDate&&t.toDate().getTime()/10
 const fmtDay = iso => { if(!iso) return 'Any day'; const d=new Date(iso+'T00:00'); return isNaN(d)?iso:d.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'}); };
 const STARS = n => '★★★★★'.slice(0,Math.max(0,Math.min(5,n||0)))+'☆☆☆☆☆'.slice(0,5-Math.max(0,Math.min(5,n||0)));
 const REVIEW_SEG = { ...SEGMENTS, shop:'Shop product', any:'General' };
+const TEAM_ROLES = ['Carpenter','Senior carpenter','Head carpenter','Lathe operator','Polish karigar','Fitter / installer','Helper','Supervisor','Designer','Sales'];
 const TABS = {
   leads:{ label:'Leads', noun:'lead', key:'name', noToggles:true,
     blank:()=>({ id:null, type:'callback', name:'', phone:'', segment:'any', needs:[], date:'', window:'morning', area:'', message:'', status:'new', remarks:'', followUp:'', images:[] }),
@@ -727,7 +796,13 @@ const TABS = {
     sort:l=>[...l].sort((a,b)=>(!!b.featured-!!a.featured)||((b.rating||0)-(a.rating||0))),
     head:'<th>Customer</th><th>Review</th><th>Department</th><th>Rating</th><th>On site</th>',
     row:p=>`<td><b>${esc(p.name)}</b>${p.featured?' <span class="badge warn" style="height:20px;font-size:11px">Home page</span>':''}<br><span class="muted">${esc(p.area||'')}</span></td>
-      <td style="max-width:280px"><span class="muted">${esc((p.text||'').slice(0,90))}${(p.text||'').length>90?'…':''}</span></td><td>${esc(REVIEW_SEG[p.segment]||'')}</td><td class="stars" aria-label="${p.rating} out of 5">${STARS(p.rating)}</td>` }
+      <td style="max-width:280px"><span class="muted">${esc((p.text||'').slice(0,90))}${(p.text||'').length>90?'…':''}</span></td><td>${esc(REVIEW_SEG[p.segment]||'')}</td><td class="stars" aria-label="${p.rating} out of 5">${STARS(p.rating)}</td>` },
+  team:{ label:'Team', noun:'team member', key:'name',
+    blank:()=>({ id:null, name:'', role:'Carpenter', dept:'wooden', since:null, village:'', about:'', images:[], featured:true, visible:true, sort:null }),
+    sort:l=>sortTeam(l),
+    head:'<th></th><th>Name</th><th>Role</th><th>Since</th><th>Village</th><th>On site</th>',
+    row:p=>`<td><div class="thumb">${(p.images||[])[0]?`<img src="${esc(p.images[0])}" alt="">`:`<span class="team-initials sm">${esc(initials(p.name))}</span>`}</div></td><td><b>${esc(p.name)}</b>${p.featured?' <span class="badge warn" style="height:20px;font-size:11px">Home page</span>':''}</td>
+      <td>${esc(p.role||'')}<br><span class="muted">${esc(TEAM_DEPTS[p.dept]||'')}</span></td><td>${esc(p.since||'—')}</td><td>${esc(p.village||'')}</td>` }
 };
 function drawAdmin(){
   if(state.tab==='images') return drawImagesTab();
@@ -831,6 +906,15 @@ function drawEditor(){
     <div class="field"><label for="f-remarks">Our remarks (staff only)</label><textarea id="f-remarks" placeholder="What was discussed on the call, site visit plan, next step…">${esc(e.remarks)}</textarea></div>
     ${field('followUp','Next follow-up',e.followUp,'type="date"')}
     <p class="muted" style="font-size:13px">Received ${esc(fmtTs(e.createdAt))}${e.page?` from the ${esc(e.page)} page`:''}.</p>`
+  : tab==='team' ? `
+    <div class="notice"><span>Take each person's permission before putting their photo and name on the website. Don't add phone numbers.</span></div>
+    <div class="row2">${field('name','Name',e.name,'placeholder="e.g. Ramesh Pawar"')}<div class="field"><label for="f-role">Role</label><input id="f-role" list="roleList" value="${esc(e.role)}" placeholder="e.g. Senior carpenter"><datalist id="roleList">${TEAM_ROLES.map(r=>`<option value="${esc(r)}">`).join('')}</datalist></div></div>
+    <div class="row3"><div class="field"><label for="f-dept">Department</label><select id="f-dept">${opt(TEAM_DEPTS,e.dept)}</select></div>${field('since','With us since (year)',e.since,'inputmode="numeric" placeholder="e.g. 2008"')}${field('village','Native village / town',e.village,'placeholder="Optional, e.g. Dindori"')}</div>
+    ${field('about','One line about them (optional)',e.about,'maxlength="140" placeholder="e.g. Has turned every pillar in our mandir range"')}
+    <div class="field"><span class="lbl">Photo</span><span class="hint">One clear photo, face visible, portrait (standing or chest-up). Plain wall and daylight look best. Only the first photo is used.</span>
+      <div class="img-list">${e.images.map((u,i)=>`<div class="img-item"><img src="${esc(u)}" alt="" data-cover="${i}" style="cursor:pointer">${i===0?'<span class="first">Shown</span>':''}<button type="button" data-rm="${i}" aria-label="Remove photo">×</button></div>`).join('')}</div>
+      <label class="drop" id="drop" for="f-files">Drop a photo here or click to choose</label><input id="f-files" type="file" accept="image/*" hidden></div>
+    ${field('sort','Order on page (optional)',e.sort,'inputmode="numeric" placeholder="1 = first. Empty = senior-most first"')}`
   : `
     <div class="row2">${field('name','Customer name',e.name,'placeholder="As shown on Google, e.g. Sameer P."')}${field('area','Area / role',e.area,'placeholder="e.g. College Road, or Architect"')}</div>
     <div class="row3"><div class="field"><label for="f-segment">About</label><select id="f-segment">${opt(REVIEW_SEG,e.segment)}</select></div>
@@ -852,6 +936,7 @@ function drawEditor(){
   const sync=()=>{
     if(tab==='products') Object.assign(e,{ name:val('name'), category:val('category'), kind:val('kind'), wood:val('wood'), finish:val('finish'), dims:val('dims'), price:numOrNull(val('price')), mrp:numOrNull(val('mrp')), stock:val('stock'), leadTime:val('lead'), description:val('desc'), sku:val('sku'), sort:numOrNull(val('sort')) });
     else if(tab==='projects') Object.assign(e,{ title:val('title'), segment:val('segment'), kind:val('kind'), location:val('location'), year:numOrNull(val('year')), material:val('material'), architect:val('architect'), summary:val('summary') });
+    else if(tab==='team') Object.assign(e,{ name:val('name'), role:val('role'), dept:val('dept'), since:numOrNull(val('since')), village:val('village'), about:val('about'), sort:numOrNull(val('sort')) });
     else if(tab==='leads') Object.assign(e,{ name:val('name'), phone:val('phone').replace(/\D/g,'').slice(-10), type:val('type'), segment:val('segment'), status:val('status'), date:val('date'), window:val('window'), area:val('area'), needs:val('needs').split(',').map(x=>x.trim()).filter(Boolean), message:val('message'), remarks:val('remarks'), followUp:val('followUp') });
     else Object.assign(e,{ name:val('name'), area:val('area'), segment:val('segment'), rating:Number(val('rating')), source:val('source'), text:val('text'), when:val('when') });
     if(!T.noToggles){ e.visible=$('#f-visible').checked; e.featured=$('#f-featured').checked; } };
@@ -877,14 +962,15 @@ async function compress(file, max=1600){
   return await new Promise(r=>c.toBlob(b=>r(b||file),'image/webp',.82));
 }
 async function addPhotos(files){
-  if(!files.length) return; const e=state.editing, drop=$('#drop'), folder=state.tab==='products'?'products':'projects';
+  if(!files.length) return; const e=state.editing, drop=$('#drop'), folder={products:'products',projects:'projects',team:'team'}[state.tab]||'misc';
+  if(state.tab==='team'){ files=files.slice(0,1); e.images=[]; }
   for(const [i,file] of files.entries()){
     drop.textContent=`Processing photo ${i+1} of ${files.length}…`;
-    const blob=await compress(file);
+    const blob=await compress(file, state.tab==='team'?1200:1600);
     if(state.demo){ e.images.push(await new Promise(r=>{ const fr=new FileReader(); fr.onload=()=>r(fr.result); fr.readAsDataURL(blob); })); continue; }
     try{
       const id = e.id || (e._tmpId ||= fb.db.collection(COL[state.tab]).doc().id);
-      const ref = fb.storage.ref(`website/${folder}/${id}/${slugify((e.name||e.title||'photo')+' nashik')}-${Date.now().toString(36)}${i}.webp`);
+      const ref = fb.storage.ref(`website/${folder}/${id}/${slugify((e.name||e.title||'photo')+(state.tab==='team'?' amar furniture nashik':' nashik'))}-${Date.now().toString(36)}${i}.webp`);
       await ref.put(blob,{contentType:'image/webp',cacheControl:'public,max-age=31536000'});
       e.images.push(await ref.getDownloadURL());
     }catch(err){ toast('Upload failed: '+(err.code||err.message)); }
@@ -899,6 +985,7 @@ async function saveItem(){
   if(tab==='products'){ if(!e.sku) e.sku={furniture:'AF-F',mandir:'AF-M',lathe:'AF-L'}[e.category]+String(Math.floor(100+Math.random()*900));
     data={ name:e.name, category:e.category, kind:e.kind, wood:e.wood, finish:e.finish, dims:e.dims, price:e.price, mrp:e.mrp, stock:e.stock, leadTime:e.leadTime, description:e.description, images:e.images, featured:e.featured, visible:e.visible, sku:e.sku, sort:e.sort }; }
   else if(tab==='projects') data={ title:e.title, segment:e.segment, kind:e.kind, material:e.material, location:e.location, year:e.year, architect:e.architect, summary:e.summary, images:e.images, featured:e.featured, visible:e.visible };
+  else if(tab==='team') data={ name:e.name, role:e.role, dept:e.dept, since:e.since, village:e.village, about:e.about, images:e.images.slice(0,1), featured:e.featured, visible:e.visible, sort:e.sort };
   else if(tab==='leads') data={ name:e.name, phone:e.phone, type:e.type, segment:e.segment, status:e.status, date:e.date, window:e.window, area:e.area, needs:e.needs, message:e.message, remarks:e.remarks||'', followUp:e.followUp||'', consent:e.consent!==false };
   else data={ name:e.name, area:e.area, segment:e.segment, rating:e.rating, source:e.source, text:e.text, when:e.when, featured:e.featured, visible:e.visible };
   const btn=$('#saveBtn'); btn.disabled=true; btn.textContent='Saving…';
@@ -921,7 +1008,7 @@ async function deleteItem(){
     state.admin[state.tab]=list().filter(p=>p.id!==e.id); state.editing=null; syncPublic(); toast('Deleted'); drawAdmin();
   }catch(ex){ toast('Couldn’t delete: '+(ex.code||ex.message)); }
 }
-function syncPublic(){ ['products','projects','reviews'].forEach(k=>state[k]=state.admin[k].filter(p=>p.visible!==false)); renderFeatured(); renderProjects(); renderReviews(); }
+function syncPublic(){ ['products','projects','reviews','team'].forEach(k=>state[k]=(state.admin[k]||[]).filter(p=>p.visible!==false)); renderFeatured(); renderProjects(); renderReviews(); renderTeam(); }
 
 
 /* =====================================================================
@@ -929,7 +1016,7 @@ function syncPublic(){ ['products','projects','reviews'].forEach(k=>state[k]=sta
    ===================================================================== */
 let hero=null, lathe=null;
 const TITLES={ home:'Amar Furniture, Nashik · Wooden Furniture, Modular Kitchens & Lathe Works', wooden:'Wooden Furniture · Amar Furniture, Nashik', modular:'Modular Kitchen & Home Interior · Amar Furniture, Nashik',
-  lathe:'Lathe Works · Amar Furniture, Nashik', shop:'Shop · Amar Furniture, Nashik', projects:'Completed Projects · Amar Furniture, Nashik', about:'About Us · Amar Furniture, Nashik', contact:'Contact Us · Amar Furniture, Nashik', admin:'Staff · Amar Furniture' };
+  lathe:'Lathe Works · Amar Furniture, Nashik', shop:'Shop · Amar Furniture, Nashik', projects:'Completed Projects · Amar Furniture, Nashik', about:'About Us · Amar Furniture, Nashik', contact:'Contact Us · Amar Furniture, Nashik', team:'Our Team · Amar Furniture, Nashik', admin:'Staff · Amar Furniture' };
 let firstRoute=true;
 function currentRoute(){
   if(MPA){
@@ -996,7 +1083,8 @@ document.addEventListener('click',ev=>{
   const c=ev.target.closest('[data-cat]'); if(c){ state.cat=c.dataset.cat; renderShop(); return; }
   const ps=ev.target.closest('[data-projseg]'); if(ps){ state.projSeg=ps.dataset.projseg; renderProjects(); return; }
   const g=ev.target.closest('[data-go-cat]'); if(g){ state.cat=g.dataset.goCat; }
-  const th=ev.target.closest('.thumbs button'); if(th){ $('#pdMain').src=th.dataset.src; $$('.thumbs button').forEach(b=>b.setAttribute('aria-current', b===th)); }
+  const th=ev.target.closest('.thumbs button'); if(th){ $('#pdMain').src=th.dataset.src; const bs=$$('.thumbs button'); bs.forEach(b=>b.setAttribute('aria-current', b===th)); const z=$('[data-zoom]'); if(z) z.dataset.zoom=bs.indexOf(th); }
+  const zb=ev.target.closest('[data-zoom]'); if(zb){ openLightbox(+zb.dataset.zoom||0); return; }
   const cp=ev.target.closest('[data-copy="phone"]'); if(cp){ navigator.clipboard?.writeText(CONFIG.phoneDisplay).then(()=>toast('Number copied'),()=>toast(CONFIG.phoneDisplay)); }
 });
 $('#q')?.addEventListener('input',e=>{ state.q=e.target.value; renderShop(); });
@@ -1007,13 +1095,33 @@ if(!MPA) window.addEventListener('hashchange',route); else window.addEventListen
 let rT; window.addEventListener('resize',()=>{ clearTimeout(rT); rT=setTimeout(()=>{ hero&&hero.resize(); lathe&&lathe.resize(); },150); });
 
 /* boot */
+/* =====================================================================
+   GOOGLE ANALYTICS 4 — loads only on the live multi-page site when CONFIG.gaId is set; never on /staff/
+   ===================================================================== */
+function initAnalytics(){
+  if(!CONFIG.gaId || !MPA || document.body.dataset.page==='admin') return;
+  window.dataLayer=window.dataLayer||[]; window.gtag=function(){ dataLayer.push(arguments); };
+  gtag('js', new Date()); gtag('config', CONFIG.gaId);
+  loadScript('https://www.googletagmanager.com/gtag/js?id='+encodeURIComponent(CONFIG.gaId)).catch(()=>{});
+  const page=()=>document.body.dataset.page;
+  document.addEventListener('click',e=>{
+    const a=e.target.closest('a,button'); if(!a) return;
+    const href=a.getAttribute('href')||'';
+    if(href.startsWith('https://wa.me/')) track('whatsapp_click',{page:page(), label:(a.textContent||'').trim().slice(0,40)});
+    else if(href.startsWith('tel:')) track('call_click',{page:page()});
+    else if(a.hasAttribute('data-directions')) track('directions_click',{page:page()});
+    else if(a.hasAttribute('data-maps')) track('open_maps_click',{page:page()});
+    else if(a.hasAttribute('data-book')) track('booking_open',{page:page(), type:a.dataset.book});
+  },true);
+}
 (async function(){
   applyTheme(store.get('af-theme'));
   fillStatic(); renderEnquiries(); renderTrust();
   if(CONFIG.firebase.apiKey){ try{ const c=JSON.parse(store.get('af-site-images')||'null'); if(c) state.siteImages=c; }catch(e){} }
   hero=$('#heroCanvas') ? latheScene($('#heroCanvas'),{style:'baluster',species:'teak',shavings:false}) : null;
-  route(); renderFeatured(); renderProjects(); applySlots(); heroSlider();
+  initAnalytics();
+  route(); renderFeatured(); renderProjects(); renderTeam(); applySlots(); heroSlider();
   await loadData();
-  renderFeatured(); renderProjects(); renderReviews(); route(); applySlots();
+  renderFeatured(); renderProjects(); renderReviews(); renderTeam(); route(); applySlots();
   if(fb) fb.auth.onAuthStateChanged(u=>{ state.user=u; state._adminLoaded=false; if(!$('[data-view="admin"]').hidden) renderAdmin(); });
 })();

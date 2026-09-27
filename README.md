@@ -23,6 +23,7 @@ Live site: https://amarfurniture.in · Hosted on GitHub Pages behind Cloudflare 
 | `/shop/` | Shop Products (`?cat=` filters a category, `?p=ID` opens a product) |
 | `/projects/` | Completed projects (`?id=ID` opens a project) |
 | `/about/` | About Us |
+| `/team/` | Our team (carpenters and craftsmen) |
 | `/contact/` | Contact Us |
 | `/staff/` | Staff panel (Google sign-in, not indexed) |
 
@@ -71,7 +72,8 @@ Sign in with an admin Google account listed in `CONFIG.adminEmails`.
 | Shop products | Ready-made wooden products shown on `/shop/` |
 | Completed projects | Completed work, shown on each department page and on `/projects/` |
 | Customer reviews | Reviews shown on the site |
-| Site photos | Hero slides, category tiles, department, workshop and about photos |
+| Team | People shown on `/team/`. "Feature on home page" picks the four shown on Home and About. One photo each, portrait. Take each person's permission first; no phone numbers. |
+| Site photos | Hero slides, category tiles, department, workshop, about and team group photos |
 
 Photos are compressed to WebP in the browser before upload.
 
@@ -98,11 +100,30 @@ Photos uploaded before auto-naming was added keep their old names. To rename one
 
 ## Firebase
 
-- **Firestore collections:** `website_products`, `website_projects`, `website_reviews`, `website_leads`, `website_settings` (photo slots live in `website_settings/images`)
+- **Firestore collections:** `website_products`, `website_projects`, `website_reviews`, `website_leads`, `website_team`, `website_settings` (photo slots live in `website_settings/images`)
 - **Storage:** `website/{folder}/...`
 - **Auth:** Google sign-in, restricted to admin emails by the security rules
 
 Anyone can read public content and submit a booking lead. Only admins can edit content or read leads.
+
+## Google Analytics
+
+Set the Measurement ID in `CONFIG.gaId` in `assets/site.js` (for example `G-AB12CD34EF`). Leave it empty to switch analytics off. It never loads on `/staff/`.
+
+Events sent, besides page views:
+
+| Event | When |
+|---|---|
+| `generate_lead` | A call back or workshop visit booking is submitted |
+| `whatsapp_click` | Any WhatsApp button or link |
+| `call_click` | A phone number is tapped |
+| `directions_click` | Get directions is tapped |
+| `open_maps_click` | Open in Google Maps is tapped |
+| `booking_open` | A booking button opens the form |
+| `view_item` / `view_project` | A product or project page is opened |
+| `photo_fullscreen` | A photo is opened full screen |
+
+In Google Analytics, mark `generate_lead`, `whatsapp_click`, `call_click` and `directions_click` as key events (Admin → Events).
 
 ## Google Search Console
 
