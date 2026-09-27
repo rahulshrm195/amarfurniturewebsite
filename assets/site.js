@@ -12,8 +12,11 @@ const CONFIG = {
   hours: '10 AM – 7 PM',
   days: 'all 7 days',                 // shown next to hours, e.g. 'Mon–Sat'
   closedDays: [],                     // days removed from the booking calendar: 0 = Sunday … 6 = Saturday. Weekly off on Sunday → [0]
-  address: 'Nashik, Maharashtra',     // TODO: full workshop address
-  mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Amar+Furniture+Nashik', // TODO: paste your Google Maps share link
+  address: 'Chh Sambhaji Nagar Naka, Vaishnavi Park, Nashik, Maharashtra 422003',   // keep EXACTLY as on Google Business Profile
+  landmark: 'Near Janardan Swami Math',
+  mapsUrl: 'https://maps.app.goo.gl/jqzGrUPHQp7oLZap8',                // Google Maps share link (opens our listing)
+  directionsUrl: 'https://www.google.com/maps/dir/?api=1&destination=Amar+Furniture%2C+Chh+Sambhaji+Nagar+Naka%2C+Vaishnavi+Park%2C+Nashik%2C+Maharashtra+422003', // opens navigation in Google Maps
+  mapEmbed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d234.31540276414702!2d73.82109932471363!3d20.006565344989774!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bddea6474486e15%3A0x8187cd84aa23ba83!2sAmar%20Furniture!5e0!3m2!1sen!2sin!4v1790503941298!5m2!1sen!2sin',
   siteUrl: 'https://amarfurniture.in/',
   instagram: '',                      // e.g. https://instagram.com/amarfurniture.nashik
   youtube: '',                        // e.g. https://youtube.com/@amarfurniture.nashik
@@ -103,6 +106,7 @@ const hrefCat = c => MPA ? '/shop/?cat='+encodeURIComponent(c) : '#shop';
 const absProduct = id => SITE+'/shop/?p='+encodeURIComponent(id);
 const absProject = id => SITE+'/projects/?id='+encodeURIComponent(id);
 const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const slugify = t => String(t).toLowerCase().replace(/&/g,' and ').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,70) || 'photo';
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const inr = n => (n || n === 0) && n !== '' ? '₹' + Number(n).toLocaleString('en-IN', {maximumFractionDigits:0}) : '';
 const wa = text => `https://wa.me/${CONFIG.phone}?text=${encodeURIComponent(text)}`;
@@ -543,7 +547,7 @@ function applySlots(){
     const id=el.dataset.slot, url=imgs[id];
     let img=$(':scope > img.slot-img',el), tag=$(':scope > .slot-tag',el);
     if(url){
-      if(!img){ img=document.createElement('img'); img.className='slot-img'; img.alt=(SLOT_INFO[id]||{}).label||''; img.decoding='async'; if(!id.startsWith('hero-1')) img.loading='lazy'; el.prepend(img); }
+      if(!img){ img=document.createElement('img'); img.className='slot-img'; img.alt=((SLOT_INFO[id]||{}).label||'').replace(/^Slide \d+:\s*/,'')+' by Amar Furniture, Nashik'; img.decoding='async'; if(!id.startsWith('hero-1')) img.loading='lazy'; el.prepend(img); }
       if(img.getAttribute('src')!==url) img.src=url;
       el.classList.add('has-img'); tag&&tag.remove();
       if(id==='seg-lathe'&&lathe){ lathe.stop(); }
@@ -641,7 +645,9 @@ async function submitBooking(f){
     f.outerHTML=`<div class="form enq booked" role="status"><svg aria-hidden="true"><use href="#i-check"/></svg>
       <h2>Thank you, ${esc(lead.name.split(' ')[0])}.</h2>
       <p>We've received your request for a <b>${type==='visit'?'workshop visit':'call back'}</b> on <b>${esc(dayLabel)}</b>, ${esc(WINDOWS[lead.window].toLowerCase())}.</p>
-      <p>Our team will call you on <b>${esc(digits.replace(/(\d{5})(\d{5})/,'$1 $2'))}</b> during working hours to confirm.${!fb?' <span class="badge sample">Preview: not saved</span>':''}</p></div>`;
+      <p>Our team will call you on <b>${esc(digits.replace(/(\d{5})(\d{5})/,'$1 $2'))}</b> during working hours to confirm.${!fb?' <span class="badge sample">Preview: not saved</span>':''}</p>
+      ${type==='visit'?`<div class="booked-addr"><svg aria-hidden="true"><use href="#i-pin"/></svg><div><b>Amar Furniture</b><br>${esc(CONFIG.address)}${CONFIG.landmark?`<br><span class="muted">${esc(CONFIG.landmark)}</span>`:''}</div></div>
+      <a class="btn btn-brand" href="${esc(CONFIG.directionsUrl)}" target="_blank" rel="noopener"><svg><use href="#i-nav"/></svg>Get directions</a>`:''}</div>`;
   }catch(ex){ btn.disabled=false; btn.textContent='Request booking'; fail('Something went wrong. Please try again, or call us on '+CONFIG.phoneDisplay+'.'); }
 }
 document.addEventListener('submit',e=>{ const f=e.target.closest('form.enq'); if(!f) return; e.preventDefault(); submitBooking(f); });
@@ -773,7 +779,7 @@ async function uploadSlot(id,file){
     const blob=await compress(file, id.startsWith('hero')?2200:1600);
     let url;
     if(state.demo||!fb){ url=await new Promise(r=>{ const fr=new FileReader(); fr.onload=()=>r(fr.result); fr.readAsDataURL(blob); }); }
-    else { const ref=fb.storage.ref(`website/site/${id}-${Date.now()}.webp`); await ref.put(blob,{contentType:'image/webp',cacheControl:'public,max-age=31536000'}); url=await ref.getDownloadURL();
+    else { const ref=fb.storage.ref(`website/site/${slugify(((SLOT_INFO[id]||{}).label||id).replace(/^Slide \d+:\s*/,'')+' amar furniture nashik')}-${Date.now().toString(36)}.webp`); await ref.put(blob,{contentType:'image/webp',cacheControl:'public,max-age=31536000'}); url=await ref.getDownloadURL();
       await fb.db.collection(CONFIG.settingsCollection).doc('images').set({[id]:url},{merge:true}); }
     state.siteImages={...state.siteImages,[id]:url}; if(!state.demo) store.set('af-site-images',JSON.stringify(state.siteImages)); applySlots(); drawImagesTab(); toast(state.demo?'Photo placed (demo, not saved)':'Photo is live on the website');
   }catch(e){ toast('Upload failed: '+(e.code||e.message)); }
@@ -878,7 +884,7 @@ async function addPhotos(files){
     if(state.demo){ e.images.push(await new Promise(r=>{ const fr=new FileReader(); fr.onload=()=>r(fr.result); fr.readAsDataURL(blob); })); continue; }
     try{
       const id = e.id || (e._tmpId ||= fb.db.collection(COL[state.tab]).doc().id);
-      const ref = fb.storage.ref(`website/${folder}/${id}/${Date.now()}-${i}.webp`);
+      const ref = fb.storage.ref(`website/${folder}/${id}/${slugify((e.name||e.title||'photo')+' nashik')}-${Date.now().toString(36)}${i}.webp`);
       await ref.put(blob,{contentType:'image/webp',cacheControl:'public,max-age=31536000'});
       e.images.push(await ref.getDownloadURL());
     }catch(err){ toast('Upload failed: '+(err.code||err.message)); }
@@ -979,6 +985,9 @@ function fillStatic(){
   $$('[data-hours]').forEach(el=>el.textContent=CONFIG.hours+', '+CONFIG.days);
   $$('[data-days-text]').forEach(el=>el.textContent=CONFIG.days);
   $$('[data-maps]').forEach(a=>a.href=CONFIG.mapsUrl);
+  $$('[data-directions]').forEach(a=>a.href=CONFIG.directionsUrl);
+  $$('[data-landmark]').forEach(el=>{ el.textContent=CONFIG.landmark; el.hidden=!CONFIG.landmark; });
+  $$('iframe[data-map-embed]').forEach(f=>{ if(!f.src) f.src=CONFIG.mapEmbed; });
   $$('[data-year]').forEach(el=>el.textContent=new Date().getFullYear());
   $$('[data-years]').forEach(el=>el.textContent=new Date().getFullYear()-1991);
   $$('[data-social]').forEach(a=>{ const u=CONFIG[a.dataset.social]; if(u) a.href=u; else a.closest('li').hidden=true; });

@@ -199,6 +199,21 @@ p{margin:0}
 .contact-card{padding:24px;border:1px solid var(--line);border-radius:14px;background:var(--surface);display:grid;gap:8px;align-content:start}
 .contact-card h3{font-size:14px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-family:var(--f-display)}
 .contact-card .big{font:500 24px/1.25 var(--f-display);word-break:break-word}
+.contact-card .big.addr{font-size:20px;line-height:1.35}
+.contact-card .landmark{margin:0}
+.card-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+.card-actions .btn svg,.booked .btn svg{width:18px;height:18px}
+.map-block{position:relative;margin-top:28px;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--surface);min-height:440px;display:grid}
+.map-block iframe{width:100%;height:100%;min-height:440px;border:0;display:block;grid-area:1/1}
+.map-card{grid-area:1/1;align-self:end;justify-self:end;margin:20px;max-width:360px;padding:20px 22px;border-radius:14px;background:var(--surface);border:1px solid var(--line);box-shadow:0 10px 30px rgba(0,0,0,.18);display:grid;gap:6px;z-index:1}
+.map-card h2{font:500 24px/1.2 var(--f-display);margin:2px 0}
+.map-card p{margin:0}
+.foot-dir{display:inline-flex;align-items:center;gap:6px;color:var(--brand)!important;font-weight:600}
+.foot-dir svg{width:16px;height:16px}
+.booked-addr{display:flex;gap:10px;align-items:flex-start;text-align:left;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--ground);margin:4px 0}
+.booked-addr svg{width:22px;height:22px;flex:none;color:var(--brand);margin-top:2px}
+.booked .btn{justify-self:start}
+@media (max-width:720px){.map-block{display:block;min-height:0}.map-block iframe{min-height:320px;height:320px}.map-card{margin:0;max-width:none;border:0;border-top:1px solid var(--line);border-radius:0;box-shadow:none}}
 .copy{border:0;background:none;padding:0;color:var(--brand-text);font-size:14px;cursor:pointer;justify-self:start;text-decoration:underline;text-underline-offset:3px}
 
 .cta-band{background:var(--walnut);color:var(--walnut-ink);border-radius:18px;padding:clamp(28px,5vw,56px);display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;position:relative;overflow:hidden}
