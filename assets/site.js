@@ -577,7 +577,7 @@ const SLOTS = [
   { group:'Department cards (home)', size:'1500 × 1000, landscape', items:[
     ['dept-wooden','Wooden Furniture card',''],['dept-modular','Modular Kitchen & Home Interior card',''],['dept-lathe','Lathe Works card',''] ]},
   { group:'Department page main photo', size:'1200 × 1500, portrait (Lathe: 1500 × 1200 landscape)', items:[
-    ['seg-wooden','Wooden Furniture page',''],['seg-modular','Modular Kitchen & Home Interior page',''],['seg-lathe','Lathe Works page','Replaces the lathe animation'],['seg-legs','Wooden Sofa Legs page','A set of real sofa legs, landscape'] ]},
+    ['seg-wooden','Wooden Furniture page',''],['seg-modular','Modular Kitchen & Home Interior page',''],['seg-lathe','Lathe Works page','Replaces the lathe animation'],['seg-legs','Wooden Sofa Legs page','A set of real sofa legs, landscape'],['seg-pillars','Wooden Pillars page','Real pillars on site, landscape'],['seg-balusters','Staircase Railing page','A finished staircase railing, landscape'],['seg-mandir','Mandir Pillars page','A mandir with turned pillars, landscape'] ]},
   { group:'Inside our workshop (home)', size:'1000 × 1250, portrait', items:[
     ['work-1','Turning on the lathe',''],['work-2','Joinery by hand',''],['work-3','Polishing & finishing',''],['work-4','Installation on site',''] ]},
   { group:'About Us', size:'1600 × 1000, landscape', items:[ ['about-1','Family / team in the workshop','You and your father with the team'] ]},
