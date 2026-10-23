@@ -20,6 +20,10 @@ Live site: https://amarfurniture.in · Hosted on GitHub Pages behind Cloudflare 
 | `/wooden-furniture/` | Wooden Furniture |
 | `/modular-kitchen-home-interior/` | Modular Kitchen & Home Interior |
 | `/lathe-works/` | Lathe Works |
+| `/wooden-sofa-legs/` | Wooden sofa, table & bed legs (search landing page for "wooden sofa legs Nashik") |
+| `/wooden-pillars/` | Wooden pillars (search landing page for "wooden pillars Nashik") |
+| `/staircase-railing-balusters/` | Staircase railings & balusters (search landing page) |
+| `/mandir-wooden-pillars/` | Mandir pillars, domes & parts (search landing page) |
 | `/shop/` | Shop Products (`?cat=` filters a category, `?p=ID` opens a product) |
 | `/projects/` | Completed projects (`?id=ID` opens a project) |
 | `/about/` | About Us |
